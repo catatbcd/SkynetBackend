@@ -10,6 +10,7 @@ const resolversUsuario = {
     } else {
         return console.log('usuario no autorizado')     
     };
+
   },
   Usuario: async (parent, args) => {
     const user = await UserModel.findOne({ _id: args._id})
@@ -93,12 +94,9 @@ const resolversUsuario = {
       const user = await UserModel.findOne({ _id: args._id})
       if(user && user.estado === "Autorizado" && (user.rol==="Administrador" || user.rol==="Lider" || user.rol==="Estudiante")){
       
-      if (Object.keys(args).includes('idUsuario')) {
-        const usuarioEliminado = await UserModel.findOneAndDelete({ _id: args._id });
-        return "El usuario: " + user.nombre + "fue eliminado";
-      } else if (Object.keys(args).includes('email')) {
+      if (Object.keys(args).includes('email')) {
         const usuarioEliminado = await UserModel.findOneAndDelete({ email: args.email });
-        return "El usuario: " + user.nombre + "fue eliminado";
+        return usuarioEliminado;
       }else { return "No se pudo eliminar el usuario";}
     }else { return "Usuario o rol no autorizado";}
     },

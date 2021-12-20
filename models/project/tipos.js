@@ -48,6 +48,7 @@ const tiposProyecto = gql`
   }
   type LInscripcion {
     nombre: String!
+    estado: Enum_EstadoProyecto
     lider:ID!
     inscripcion: [Inscripcion]
   }
@@ -57,6 +58,7 @@ const tiposProyecto = gql`
   }
   type LAvance {
   nombre: String!
+  estado: Enum_EstadoProyecto
   avance: [Avance]
   }
   input inputAvance {

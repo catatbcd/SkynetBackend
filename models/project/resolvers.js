@@ -18,11 +18,11 @@ const resolversProyecto = {
         ListarInscripciones: async (parent, args) => {
           const user = await UserModel.findOne({ _id: args.idUsuario })
           if(user && user.estado === "Autorizado" && user.rol==="Lider"){
-            const inscripcion = await ProjectModel.find({lider:user._id},{"inscripcion":1,"nombre":1,"lider":1}).populate('inscripcion.estudiante');;
+            const inscripcion = await ProjectModel.find({lider:user._id},{"inscripcion":1,"nombre":1,"lider":1,"estado":1}).populate('inscripcion.estudiante');;
             return inscripcion;
           }
           else if(user && user.estado === "Autorizado" && (user.rol==="Administrador" || user.rol==="Estudiante")){
-            const inscripcion = await ProjectModel.find({},{"inscripcion":1,"nombre":1,"lider":1}).populate('inscripcion.estudiante');;
+            const inscripcion = await ProjectModel.find({},{"inscripcion":1,"nombre":1,"lider":1,"estado":1}).populate('inscripcion.estudiante');;
             return inscripcion;
           } else{
             return console.log("Rol no valido o usuario no autorizado") }      
@@ -65,11 +65,11 @@ const resolversProyecto = {
         ListarAvances: async (parent, args) => {
           const user = await UserModel.findOne({ _id: args.idUsuario })
           if(user && user.estado === "Autorizado" && user.rol==="Lider"){
-            const avances = await ProjectModel.find({lider:user._id},{"avance":1,"nombre":1});
+            const avances = await ProjectModel.find({lider:user._id},{"avance":1,"nombre":1,"estado":1});
             return avances;
           }
           else if(user && user.estado === "Autorizado" && user.rol==="Administrador"){
-            const avances = await ProjectModel.find({},{"avance":1,"nombre":1});
+            const avances = await ProjectModel.find({},{"avance":1,"nombre":1,"estado":1});
             return avances;
           } else{
             return console.log("Rol no valido o usuario no autorizado") }      
@@ -85,7 +85,7 @@ const resolversProyecto = {
             return avance;
           }
           else if(user && user.estado === "Autorizado" && (user.rol==="Administrador"||user.rol==="Estudiante")){
-            const avance = await ProjectModel.find({avance:{$elemMatch:{_id:{$eq: args.idAvance}}}},{"nombre":1,"avance.$":1});
+            const avance = await ProjectModel.find({avance:{$elemMatch:{_id:{$eq: args.idAvance}}}},{"nombre":1,"avance.$":1,"estado":1});
             return avance;
           } else{
             return console.log("Rol no valido o usuario no autorizado") }      

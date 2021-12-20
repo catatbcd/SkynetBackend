@@ -1,8 +1,8 @@
-import { tipos } from './graphql/types.js';
-import { resolvers } from './graphql/resolvers.js';
+import { types } from './graphql/types.js';
+import { resolvers } from './graphql/resolver.js';
 import { gql } from 'apollo-server-express';
 import { ApolloServer } from 'apollo-server-express';
-import conectarBD from './database/connection';
+import conectarBD from './database/connection.js';
 import dotenv from 'dotenv';
 import assert from 'assert';
 
@@ -10,7 +10,7 @@ dotenv.config();
 await conectarBD();
 
 const server = new ApolloServer({
-  typeDefs: tipos,
+  typeDefs: types,
   resolvers: resolvers,
 });
 
@@ -18,87 +18,73 @@ it('creates user', async () => {
   const result = await server.executeOperation({
     query: gql`
       mutation Mutation(
-        $nombre: String!
-        $idUsuario: String!
         $email: String!
-        $rol: Enum_Rol!
+        $idUsuario: String!
+        $nombre: String!
         $clave: String!
+        $rol: Enum_Rol!
       ) {
         crearUsuario(
-          nombre: $nombre
-          idUsuario: $idUsuario
           email: $email
-          rol: $rol
+          idUsuario: $idUsuario
+          nombre: $nombre
           clave: $clave
+          rol: $rol
+          
         ) {
           email
         }
       }
     `,
     variables: {
-      nombre: 'test',
-      idUsuario: 'test',
       email: 'testing@testing.com',
-      rol: 'Administrador',
+      idUsuario: 'test',
+      nombre: 'test',
       clave: 'test',
+      rol: 'Administrador'     
     },
   });
 
-  assert.equal(result.data.crearUsuario.correo, 'testing@testing.com');
+  assert.equal(result.data.crearUsuario.email, 'testing@testing.com');
 });
 
 it('fetches user', async () => {
   const result = await server.executeOperation({
     query: gql`
-      query Usuarios($filtro: FiltroUsuarios) {
-        Usuarios(filtro: $filtro) {
-          email
-        }
+    query Usuario($_id: ID!, $usuario: ID!) {
+      Usuario(_id: $_id, usuario: $usuario) {
+        _id
+        idUsuario
+        email
+        nombre
+        rol
+        estado
       }
+    }
     `,
     variables: {
-      filtro: {
-        correo: 'testing@testing.com',
-      },
+      _id: '61b398d465ec516a5451a652',
+      usuario: '61b398d465ec516a5451a652'
     },
   });
 
-  assert.equal(result.data.Usuarios.length, 1);
-
-  assert.equal(result.data.Usuarios[0].email, 'testing@testing.com');
+  assert.equal(result.data.Usuario._id, '61b398d465ec516a5451a652');
 });
 
 it('deletes user', async () => {
   const result = await server.executeOperation({
     query: gql`
-      mutation EliminarUsuario($correo: String) {
-        eliminarUsuario(email: $email) {
-          email
-        }
+    mutation EliminarUsuario($id: ID, $email: String) {
+      eliminarUsuario(_id: $id, email: $email){
+        email
       }
+    }
     `,
     variables: {
+      id: '61afae949da6abecaec82bf6',
       email: 'testing@testing.com',
     },
   });
   assert.equal(result.data.eliminarUsuario.email, 'testing@testing.com');
 });
 
-it('fetches user after deletion', async () => {
-  const result = await server.executeOperation({
-    query: gql`
-      query Usuarios($filtro: FiltroUsuarios) {
-        Usuarios(filtro: $filtro) {
-          email
-        }
-      }
-    `,
-    variables: {
-      filtro: {
-        email: 'testing@testing.com',
-      },
-    },
-  });
-
-  assert.equal(result.data.Usuarios.length, 0);
-});
